@@ -12,7 +12,7 @@ export default function Home() {
             <div className="flex w-full flex-col">
               {/* Hero, featured book on front page  */}
               <BookPreviewHero href="/test"
-                    imageSrc="https://d-steimatzky.co.il/wp-content/uploads/2024/08/5-7029-695-300x466.jpg"
+                    imageSrc="https://d-steimatzky.co.il/wp-content/uploads/2024/08/1572-533019-300x468.jpg"
                     title="המלך הרועה 1: חלון אחד חשוך"
                     writer="רייצ׳ל גיליג"
                     badges={["פנטזיה אפית", "חלומות", "גותיקה"]}

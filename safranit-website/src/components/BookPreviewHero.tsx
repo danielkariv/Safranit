@@ -26,13 +26,13 @@ export default function BookPreviewHero({ href, imageSrc, title, writer, badges,
                     overflow: "hidden",
                   }}
                 ></div>
-                <div className="hero-content text-neutral-content flex flex-col sm:flex-row items-center pb-20 ">
+                <div className="hero-content text-neutral-content flex flex-col sm:flex-row items-center pb-20 mt-10">
                   {/* Left Section - Image */}
-                  <div className="w-full sm:w-1/5 mb-5 sm:mb-0 flex justify-center sm:justify-start">
+                  <div className="sm:w-1/5 mb-5 sm:mb-0 sm:h-auto flex w-1/2 justify-center sm:justify-start">
                     <img
                       src={imageSrc}
                       alt="Hero Image"
-                      className="justify-self-center rounded-lg shadow-lg object-cover"
+                      className="object-scale-down justify-self-center rounded-lg shadow-lg"
                     />
                   </div>
 
