@@ -11,7 +11,7 @@ interface BookPreviewHeroProps {
 
 export default function BookPreviewHero({ href, imageSrc, title, writer, badges, des }:BookPreviewHeroProps){
     return(
-        <div className="hero">
+        <div className="hero"  dir="rtl">
                 <div
                   className="w-full h-full"
                   style={{
@@ -26,7 +26,7 @@ export default function BookPreviewHero({ href, imageSrc, title, writer, badges,
                     overflow: "hidden",
                   }}
                 ></div>
-                <div className="hero-content text-neutral-content flex flex-col sm:flex-row items-center pb-20 " dir="rtl">
+                <div className="hero-content text-neutral-content flex flex-col sm:flex-row items-center pb-20 ">
                   {/* Left Section - Image */}
                   <div className="w-full sm:w-1/5 mb-5 sm:mb-0 flex justify-center sm:justify-start">
                     <img
@@ -54,7 +54,7 @@ export default function BookPreviewHero({ href, imageSrc, title, writer, badges,
                     ))}
                     </div>
 
-                    <p className="mb-1 sm:block hidden font-medium text-base-content text-wrap" >
+                    <p className="mb-1 sm:block hidden font-medium text-base-content text-wrap text-right" >
                       {des}
                     </p>
                   </Link>

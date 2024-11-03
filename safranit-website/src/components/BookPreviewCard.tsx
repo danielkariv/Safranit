@@ -10,8 +10,8 @@ interface BookPreviewCardProps {
 
 export default function BookPreviewCard ({ href, imageSrc, title, writer, badges }:BookPreviewCardProps) {
   return (
-    <Link href={href} passHref className='w-full'>
-      <div className="flex items-center mb-2 p-4 w-full bg-base-100 shadow-lg rounded-sm hover:bg-base-200 transition-colors cursor-pointer">
+    <Link href={href} passHref className='w-full'  dir="rtl">
+      <div className="flex items-center mb-1 p-1 w-full bg-base-100 shadow-lg rounded-sm hover:bg-base-200 transition-colors cursor-pointer">
         {/* Picture on the left */}
         <img
           src={imageSrc}

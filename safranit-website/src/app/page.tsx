@@ -24,7 +24,7 @@ export default function Home() {
               <div className="divider" />
               <div>
                 <div className="flex w-full flex-row items-center justify-between p-2">
-                  <h2 className="font-bold text-xl p-2">Your Wishlist:</h2>
+                  <h2 className="font-bold text-2xl p-2">Your Wishlist:</h2>
                   <Link href="/wishlist" className="btn btn-ghost btn-md">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -42,7 +42,7 @@ export default function Home() {
                   </Link>
                 </div>
 
-                <div className="card p-0 m-2 grid min-h-20 place-items-center">
+                <div className="card p-0 ml-6 mr-6 grid min-h-20 place-items-center">
                   <BookPreviewCard
                     href="/test"
                     imageSrc="https://d-steimatzky.co.il/wp-content/uploads/2024/10/1285-172-300x467.jpg"
