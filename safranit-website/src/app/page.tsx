@@ -22,9 +22,9 @@ export default function Home() {
 
 חלון אחד חשוך הוא הספר הראשון בדואט המלך הרועה של רייצ’ל גיליג, שכבש את צמרת טבלת רבי־המכר של הניו יורק טיימס והפך לסנסציית BOOKTOK." />
               <div className="divider" />
-              <div>
+              <div className="max-w-screen-xl w-full mx-auto">
                 <div className="flex w-full flex-row items-center justify-between p-2">
-                  <h2 className="font-bold text-2xl p-2">Your Wishlist:</h2>
+                  <h2 className="font-bold text-xl p-2">Your Wishlist:</h2>
                   <Link href="/wishlist" className="btn btn-ghost btn-md">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
