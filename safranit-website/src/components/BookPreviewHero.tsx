@@ -39,7 +39,7 @@ export default function BookPreviewHero({ href, imageSrc, title, writer, badges,
                   {/* Right Section - Title, Description, Badges */}
                   <Link
                     className="w-full sm:w-3/4 sm:text-left px-5 flex flex-col items-middle sm:items-start"
-                    href="/book/unknown"
+                    href={href}
                   >
                     <h1 className="text-5xl font-bold mb-2 text-base-content">
                       {title}

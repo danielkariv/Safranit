@@ -1,6 +1,5 @@
 import BookPreviewCard from "@/components/BookPreviewCard";
 import MainDrawer from "@/components/MainDrawer";
-import Link from "next/link";
 
 export default function Home() {
     return (
