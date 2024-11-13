@@ -126,7 +126,7 @@ export async function fetchLastestBookData() {
         // We convert array and JSON to string. 
         await sql`
             INSERT INTO books (image, title, writer, tags, description, storeLinks)
-            VALUES (${book.imageSrc}, ${book.title}, ${book.writer}, ${book.badges}, ${book.des}, ${JSON.stringify(book.storelinks)})
+            VALUES (${book.imageSrc}, ${book.title}, ${book.writer}, ${JSON.stringify(book.badges)}, ${book.des}, ${JSON.stringify(book.storelinks)})
             ON CONFLICT (title, writer)  -- Conflict check on title and writer
             DO UPDATE SET
                 image = EXCLUDED.image,  -- Update image if conflict occurs

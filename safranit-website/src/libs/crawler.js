@@ -1,7 +1,7 @@
-const axios = require('axios');
-const xml2js = require('xml2js');
-const cheerio = require('cheerio');
-const fs = require('fs');
+import axios from 'axios';
+import xml2js from 'xml2js';
+import cheerio from 'cheerio';
+import fs from 'fs';
 
 // TODO: it saved tags double, didn't check why.
 // TODO: clean up the comments.
