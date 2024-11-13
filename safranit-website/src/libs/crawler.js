@@ -1,30 +1,46 @@
 const axios = require('axios');
 const xml2js = require('xml2js');
 const cheerio = require('cheerio');
-const fs = require('fs');  // Required for file system operations
+const fs = require('fs');
 
-// URL of the sitemap
+// TODO: it saved tags double, didn't check why.
+// TODO: clean up the comments.
+// TODO: need another script to upload all of it.
+
 const sitemapUrl = 'https://d-steimatzky.co.il/sitemap_index.xml';
-
+const scraped_json_file = 'scraped_data_test.json';
 const delay = (min, max) => {
   return new Promise(resolve => setTimeout(resolve, Math.random() * (max - min) + min));
 };
 
-// Function to write data to a CSV file
-const writeToCSV = (data) => {
-  // Create CSV header
-  // title, author, coverImageUrl, description, tags, isAvailableForKindle, releaseYear
-  const header = ['URL', 'Title', 'Author', 'ImageURL', 'Description', 'Tags', 'ForKindle', 'ReleaseYear'];
+// Initialize the JSON array
+const initializeJSONFile = () => {
+  if (!fs.existsSync(scraped_json_file)) {
+    // If the file does not exist, create it and start with an empty array
+    fs.writeFileSync(scraped_json_file, '[', 'utf8');
+  }
+};
+
+// Function to append data to JSON file
+const writeToJSON = (data) => {
+  // Open the file in append mode
+  const isEmpty = fs.statSync(scraped_json_file).size === 2; // Check if the file only contains '[', which means it's empty
   
-  // Format the rows for CSV
-  const rows = data.map(item => `${item.url},${item.title},${item.author},${item.coverImageUrl},${item.description},${item.tags},${item.isAvailableForKindle},${item.releaseYear}`).join('\n');
-  
-  // Combine the header and the rows
-  const csvContent = [header.join(','), rows].join('\n');
-  
-  // Write the content to a file
-  fs.writeFileSync('scraped_data.csv', csvContent, 'utf8');
-  console.log('Data saved to scraped_data.csv');
+  const jsonString = JSON.stringify(data, null, 2);
+
+  if (isEmpty) {
+    // If it's the first entry, we don't need a comma before the data
+    fs.appendFileSync(scraped_json_file, jsonString, 'utf8');
+  } else {
+    // Otherwise, append a comma and the new entry
+    fs.appendFileSync(scraped_json_file, `,\n${jsonString}`, 'utf8');
+  }
+};
+
+// Function to close the JSON array
+const closeJSONFile = () => {
+  // Append the closing bracket to end the JSON array
+  fs.appendFileSync(scraped_json_file, '\n]', 'utf8');
 };
 
 // Function to fetch the sitemap XML
@@ -47,7 +63,7 @@ const parseSitemap = (xmlData) => {
       console.error(`Failed to parse XML: ${err.message}`);
       return;
     }
-    
+
     const filteredSitemaps = result.sitemapindex.sitemap.filter((sitemap) => {
       // Check if the URL contains 'product-sitemap'
       const loc = sitemap.loc[0];
@@ -58,7 +74,8 @@ const parseSitemap = (xmlData) => {
 
   return urls;
 };
-// Function to parse the sitemap XML and extract URLs
+
+// Function to parse the product sitemap XML and extract URLs
 const parseProductSitemap = (xmlData) => {
   const parser = new xml2js.Parser();
   let urls = [];
@@ -68,7 +85,7 @@ const parseProductSitemap = (xmlData) => {
       console.error(`Failed to parse XML: ${err.message}`);
       return;
     }
-    
+
     // Check if the sitemap has a URL set
     if (result.urlset && result.urlset.url) {
       urls = result.urlset.url.map((urlObj) => urlObj.loc[0]);
@@ -83,10 +100,9 @@ const scrapePage = async (url) => {
   try {
     const response = await axios.get(url);
     const $ = cheerio.load(response.data);
-    
+
     const title = $('.product_title').text();
     const author = $('.product_author a').text();
-    // converting given text from list of <p> to a single text with \n between old <p> elements.
     const description = $('.text-container')
                         .find('p')  // Find all <p> elements inside the container
                         .map((i, el) => $(el).text())  // Get text of each <p>
@@ -95,27 +111,18 @@ const scrapePage = async (url) => {
     const tags = $('.d-flex .book_tags a')
                         .map((i, el) => $(el).text())  // Extract the text from each <a> tag
                         .get();  // Convert the Cheerio object to a plain array
-    // Extract the Kindle availability span
     const kindleAvailability = $('.d-flex.align-items-center span')
       .filter((i, el) => $(el).text().trim() === 'זמין לקינדל')  // Filter for the specific text
-      .text().trim();  // Extract and clean the text content
-    // If the span exists, it will return the text, otherwise return a default message
-    const isAvailableForKindle = kindleAvailability ? true : false;
-    // Extract the year of release (assuming the text format is consistent)
-    const releaseYearText = $('h4')
-      .filter((i, el) => $(el).text().includes('יצא לאור ב:')) // Find the <h4> that contains "יצא לאור ב:"
       .text().trim();
-
-    // Extract the year using a regular expression
-    const releaseYearMatch = releaseYearText.match(/\d{4}/);  // Match 4 digits (year format)
-
-    const releaseYear = releaseYearMatch ? releaseYearMatch[0] : null;  // If found, get the year, otherwise null
-
-    // Extract the cover image URL from the <img> tag inside the gallery image div
+    const isAvailableForKindle = kindleAvailability ? true : false;
+    const releaseYearText = $('h4')
+      .filter((i, el) => $(el).text().includes('יצא לאור ב:'))
+      .text().trim();
+    const releaseYearMatch = releaseYearText.match(/\d{4}/);
+    const releaseYear = releaseYearMatch ? releaseYearMatch[0] : null;
     const coverImageUrl = $('.woocommerce-product-gallery__image img').attr('src');
-    // TODO: we can get bigger images if we want, see srcset in the img element. 
-    
-    return { title, author, coverImageUrl, description, tags, isAvailableForKindle, releaseYear };
+
+    return { url, title, author, coverImageUrl, description, tags, isAvailableForKindle, releaseYear };
   } catch (error) {
     console.error(`Failed to scrape ${url}: ${error.message}`);
   }
@@ -123,47 +130,46 @@ const scrapePage = async (url) => {
 
 // Main function to run the crawler
 const runCrawler = async () => {
-  console.log("Note: this process need to run for hours, there is server side cooldownds, so it takes around 6 hours or so.\n");
+  console.log("Note: this process needs to run for hours, there are server-side cooldowns, so it takes around 6 hours or so.\n");
+
   // Step 1: Fetch the sitemap index
   const sitemapIndexXml = await fetchSitemap(sitemapUrl);
   if (!sitemapIndexXml) return;
-  
+
   // Step 2: Parse the sitemap index to get individual sitemap URLs
   const sitemapIndexData = await parseSitemap(sitemapIndexXml);
-  // TODO: the URLs comes with lastmod, could be useful to update pages information.
   const sitemapUrls = sitemapIndexData.map(item => item.loc[0]);
-  
+
   // Step 3: Loop through each sitemap and fetch product URLs
   const allProductUrls = [];
   for (let sitemapUrl of sitemapUrls) {
     console.log(`Processing sitemap: ${sitemapUrl}`);
-    
     const sitemapXml = await fetchSitemap(sitemapUrl);
     if (!sitemapXml) continue;
-    
-    const sitemapData = await parseProductSitemap(sitemapXml);    
+
+    const sitemapData = await parseProductSitemap(sitemapXml);
     allProductUrls.push(...sitemapData);
   }
-  console.log("total:%d, sitemaps:%d", allProductUrls.length, sitemapUrls.length);
-  var scrapedData = [];
-  var count = 0;
-  // Now you can scrape each URL
+  console.log("Total URLs found: %d", allProductUrls.length);
+
+  // Step 4: Scrape each product page and write to JSON
+  let count = 0;
   for (const url of allProductUrls) {
     const data = await scrapePage(url);
     if (data) {
-      // Add the URL and scraped data to the array
-      scrapedData.push({ url, ...data });
-      console.log("[", count , "/", allProductUrls.length, "]","Scraped data from ", url, " : ", data);
+      // Write data to JSON file
+      writeToJSON(data);
+      console.log(`[${count + 1} / ${allProductUrls.length}] Scraped data from ${url}`);
     }
     count += 1;
-    await delay(100, 200); // A small delay so we won't get banned because of 'DDOSing'.
+    await delay(100, 200); // A small delay to avoid overloading the server
   }
-  // TODO: when done, move it to SQL.
-  // After scraping, write the data to a CSV file
-  if (scrapedData.length > 0) {
-    writeToCSV(scrapedData);
-  }
+
+  // Close the JSON array when scraping is finished
+  closeJSONFile();
 };
 
+// Initialize the file at the start
+initializeJSONFile();
 // Run the crawler
 runCrawler().catch((err) => console.error(`Error: ${err.message}`));

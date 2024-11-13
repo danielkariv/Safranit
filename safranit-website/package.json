@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "scrape": "node src/libs/crawler.js"
+    "scrape": "node src/libs/crawler.js",
   },
   "dependencies": {
     "@types/cheerio": "^0.22.35",
