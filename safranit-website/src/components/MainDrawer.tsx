@@ -9,31 +9,28 @@ export default function MainDrawer({
   }: Readonly<{
     children: React.ReactNode;
   }>) {
-    // Local state to track the checkbox's checked state
     const [isThemeChecked, setIsThemeChecked] = useState(false);
     useEffect(() => {
-      // Check if the theme is already set in localStorage
       const savedTheme = localStorage.getItem('theme');
-      
+      // Check if the theme is already set in localStorage
       if (savedTheme) {
-        // Apply the saved theme to the document
+        // Apply theme
         document.documentElement.setAttribute('data-theme', savedTheme);
       } else {
-        // Optionally, you can set a default theme, for example, light mode
-        document.documentElement.setAttribute('data-theme', 'light');
+        // Init dark mode (as the icons are by default).
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
       }
+      // Change icon based on theme selected.
       setIsThemeChecked(savedTheme === "light");
     }, []);
   
     const handleThemeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const theme = e.target.checked ? 'light' : 'dark'; // Assuming checkbox represents light mode when checked
+      const theme = e.target.checked ? 'light' : 'dark';
   
-      // Save the theme to localStorage
       localStorage.setItem('theme', theme);
-  
-      // Apply the theme to the document
+      // apply theme, and change icon.
       document.documentElement.setAttribute('data-theme', theme);
-      // Update local state to reflect the theme change
       setIsThemeChecked(e.target.checked);
     };
 
