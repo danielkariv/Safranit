@@ -3,17 +3,14 @@ import xml2js from 'xml2js';
 import cheerio from 'cheerio';
 import fs from 'fs';
 
-// TODO: it saved tags double, didn't check why.
-// TODO: clean up the comments.
-// TODO: need another script to upload all of it.
-
 const sitemapUrl = 'https://d-steimatzky.co.il/sitemap_index.xml';
 const scraped_json_file = 'scraped_data_test.json';
 const delay = (min, max) => {
   return new Promise(resolve => setTimeout(resolve, Math.random() * (max - min) + min));
 };
 
-// Initialize the JSON array
+// Helper functions to handle saving into JSON.
+// We save an array so, we need an '[' at the start, and ']' at the end, and enter entries as {} objects.
 const initializeJSONFile = () => {
   if (!fs.existsSync(scraped_json_file)) {
     // If the file does not exist, create it and start with an empty array
@@ -21,9 +18,8 @@ const initializeJSONFile = () => {
   }
 };
 
-// Function to append data to JSON file
 const writeToJSON = (data) => {
-  // Open the file in append mode
+  // Open the file in append mode (faster than read, insert, and saving each time)
   const isEmpty = fs.statSync(scraped_json_file).size === 2; // Check if the file only contains '[', which means it's empty
   
   const jsonString = JSON.stringify(data, null, 2);
@@ -36,14 +32,11 @@ const writeToJSON = (data) => {
     fs.appendFileSync(scraped_json_file, `,\n${jsonString}`, 'utf8');
   }
 };
-
-// Function to close the JSON array
 const closeJSONFile = () => {
-  // Append the closing bracket to end the JSON array
   fs.appendFileSync(scraped_json_file, '\n]', 'utf8');
 };
 
-// Function to fetch the sitemap XML
+// Function to fetch the sitemap XML (loading the page).
 const fetchSitemap = async (url) => {
   try {
     const response = await axios.get(url);
@@ -54,7 +47,8 @@ const fetchSitemap = async (url) => {
   }
 };
 
-// Function to parse the sitemap XML and extract URLs
+// Function to parse the sitemap XML and extract URLs (take page, and extract urls)
+// Used specificly for main sitemap xml. 
 const parseSitemap = (xmlData) => {
   const parser = new xml2js.Parser();
   let urls = [];
@@ -76,6 +70,7 @@ const parseSitemap = (xmlData) => {
 };
 
 // Function to parse the product sitemap XML and extract URLs
+// Used specificlly in product collection xmls (there are 14 when written).
 const parseProductSitemap = (xmlData) => {
   const parser = new xml2js.Parser();
   let urls = [];
@@ -96,6 +91,7 @@ const parseProductSitemap = (xmlData) => {
 };
 
 // Function to scrape the data from a given URL
+// URLs : d-steimatzky.co.il/product/...
 const scrapePage = async (url) => {
   try {
     const response = await axios.get(url);
@@ -111,18 +107,19 @@ const scrapePage = async (url) => {
     const tags = $('.d-flex .book_tags a')
                         .map((i, el) => $(el).text())  // Extract the text from each <a> tag
                         .get();  // Convert the Cheerio object to a plain array
+    const halfTags = tags.slice(0, tags.length/2); // NOTE: in this site, it appear twice, because of desktop/mobile formats, so I need just half (it even, so it fine).
     const kindleAvailability = $('.d-flex.align-items-center span')
-      .filter((i, el) => $(el).text().trim() === 'זמין לקינדל')  // Filter for the specific text
+      .filter((i, el) => $(el).text().trim() === 'זמין לקינדל')  // Filter for this specific text (kindle availability)
       .text().trim();
     const isAvailableForKindle = kindleAvailability ? true : false;
     const releaseYearText = $('h4')
-      .filter((i, el) => $(el).text().includes('יצא לאור ב:'))
+      .filter((i, el) => $(el).text().includes('יצא לאור ב:')) // filter for release date prefix.
       .text().trim();
     const releaseYearMatch = releaseYearText.match(/\d{4}/);
     const releaseYear = releaseYearMatch ? releaseYearMatch[0] : null;
     const coverImageUrl = $('.woocommerce-product-gallery__image img').attr('src');
 
-    return { url, title, author, coverImageUrl, description, tags, isAvailableForKindle, releaseYear };
+    return { url, title, author, coverImageUrl, description, halfTags, isAvailableForKindle, releaseYear };
   } catch (error) {
     console.error(`Failed to scrape ${url}: ${error.message}`);
   }
