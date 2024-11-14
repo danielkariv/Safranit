@@ -4,7 +4,7 @@ import { sql } from '@vercel/postgres';
 Note about "sql<>`select * from books where id=${id}`" and similar commands, it is safe from SQL injection, because it makes it a query + parameters.
 See: https://neon.tech/blog/sql-template-tags
 */
-
+// TODO: needs a cleanup and improving. It should handle edgecases, and the naming is off in multiple componenets.
 export type DB_books = {
     id : string;
     image : string;
