@@ -2,7 +2,7 @@ import { fetchBookData } from "@/libs/data";
 import { Suspense } from "react";
 import MainDrawer from "@/components/MainDrawer";
 import Description from "@/components/Description";
-
+import Image from "next/image";
 // This page component is async since we're fetching data from a server
 export default async function BookPage({ params }: { params:  Promise<{ productId: string }> }) {
   try {
@@ -38,44 +38,67 @@ export default async function BookPage({ params }: { params:  Promise<{ productI
                 overflow: "hidden",
               }}
             ></div>
-            <div className="hero-content text-center">
+
+            <div className="hero-content text-center flex flex-row-reverse gap-8">
               <div
                 className="max-w-2xl mx-auto text-right shadow-lg sm:p-10 p-2 bg-opacity-50 bg-base-100"
                 dir="rtl"
               >
-                <h1 className="text-5xl font-bold">{bookData.title}</h1>
-                <p className="text-xl mt-2">{bookData.writer}</p>
+                {/* Left side (Title + Author) */}
+                <div>
+                  <div className="mt-4 flex flex-col sm:flex-row sm:gap-8">
+                    {/* Left side (Title + Author) */}
+                    <div className="flex flex-col justify-center w-full">
+                      <h1 className="text-5xl font-bold">{bookData.title}</h1>
+                      <p className="text-xl mt-2">{bookData.writer}</p>
+                    </div>
 
-                <div className="mt-4 flex justify-center gap-2">
-                  {bookData.badges.map((tag, index) => (
-                    <span key={index} className={`badge badge-secondary`}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+                    {/* Right side (Image) */}
+                    <div className="flex justify-center sm:w-1/5 sm:flex sm:justify-center sm:mt-0 mt-4">
+                      <Image
+                        alt={bookData.title}
+                        src={bookData.imageSrc}
+                        width={300}
+                        height={464}
+                        className="rounded-lg shadow-lg aspect-[3/4]"
+                      />
+                    </div>
+                  </div>
 
-                {/* Client-Side Component for Toggling Description */}
-                <Description des={bookData.des} />
+                  <div className="mt-4 flex justify-center gap-2 flex-wrap">
+                    {bookData.badges.map((tag, index) => (
+                      <span
+                        key={index}
+                        className={`badge badge-secondary badge-md truncate min-w-max`}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
 
-                {/* Store Buttons */}
-                <div className="flex justify-center gap-2 mt-4">
-                  <a
-                    href={bookData.storelinks.steimatzky}
-                    className="btn btn-outline btn-primary"
-                  >
-                    סטימצקי
-                  </a>
-                  <a
-                    href={bookData.storelinks.booknet}
-                    className="btn btn-outline btn-secondary"
-                  >
-                    צומת ספרים
-                  </a>
-                </div>
+                  {/* Client-Side Component for Toggling Description */}
+                  <Description des={bookData.des} />
 
-                <div className="mt-6 flex justify-center gap-4">
-                  <button className="btn btn-primary">Add to Wishlist</button>
-                  <button className="btn btn-secondary">Mark as Read</button>
+                  {/* Store Buttons */}
+                  <div className="flex justify-center gap-2 mt-4">
+                    <a
+                      href={bookData.storelinks.steimatzky}
+                      className="btn btn-outline btn-primary"
+                    >
+                      סטימצקי
+                    </a>
+                    <a
+                      href={bookData.storelinks.booknet}
+                      className="btn btn-outline btn-secondary"
+                    >
+                      צומת ספרים
+                    </a>
+                  </div>
+
+                  <div className="mt-6 flex justify-center gap-4">
+                    <button className="btn btn-primary">Add to Wishlist</button>
+                    <button className="btn btn-secondary">Mark as Read</button>
+                  </div>
                 </div>
               </div>
             </div>

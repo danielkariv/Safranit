@@ -1,5 +1,5 @@
 import Link from "next/link";
-
+import Image from "next/image";
 interface BookPreviewHeroProps {
     href: string;
     imageSrc: string;
@@ -36,11 +36,13 @@ export default function BookPreviewHero({
       <div className="hero-content text-neutral-content flex flex-col sm:flex-row items-center mb-20 mt-10 bg-opacity-50 bg-base-100 rounded-lg sm:mr-8 sm:ml-8">
         {/* Left Section - Image */}
         <div className="sm:w-1/5 mb-5 sm:mb-0 sm:h-auto flex w-1/2 justify-center sm:justify-start">
-          <img
-            src={imageSrc}
-            alt="Hero Image"
-            className="object-scale-down justify-self-center rounded-lg shadow-lg"
-          />
+          <Image
+          alt={title}
+          src={imageSrc}
+          width={300}
+          height={464}
+          className="justify-self-center rounded-lg shadow-lg aspect-[3/4]"
+        />
         </div>
 
         {/* Right Section - Title, Description, Badges */}

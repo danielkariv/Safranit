@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    domains: [
+      'd-steimatzky.co.il', // Just the domain part, without the protocol
+    ],
+  },
 };
 
 export default nextConfig;
