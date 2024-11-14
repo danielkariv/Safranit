@@ -1,12 +1,42 @@
+"use client";
 import Link from "next/link";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import { useEffect, useState } from 'react';
 
 export default function MainDrawer({
     children,
   }: Readonly<{
     children: React.ReactNode;
   }>) {
+    // Local state to track the checkbox's checked state
+    const [isThemeChecked, setIsThemeChecked] = useState(false);
+    useEffect(() => {
+      // Check if the theme is already set in localStorage
+      const savedTheme = localStorage.getItem('theme');
+      
+      if (savedTheme) {
+        // Apply the saved theme to the document
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      } else {
+        // Optionally, you can set a default theme, for example, light mode
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+      setIsThemeChecked(savedTheme === "light");
+    }, []);
+  
+    const handleThemeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const theme = e.target.checked ? 'light' : 'dark'; // Assuming checkbox represents light mode when checked
+  
+      // Save the theme to localStorage
+      localStorage.setItem('theme', theme);
+  
+      // Apply the theme to the document
+      document.documentElement.setAttribute('data-theme', theme);
+      // Update local state to reflect the theme change
+      setIsThemeChecked(e.target.checked);
+    };
+
     return (
         <div className="drawer lg:drawer-open">
         <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
@@ -34,6 +64,9 @@ export default function MainDrawer({
                         type="checkbox"
                         className="theme-controller"
                         value="light"
+                        onChange={handleThemeChange}
+                        checked={isThemeChecked}
+                        // checked={localStorage.getItem('theme') === 'light'}
                       />
                       {/* sun icon */}
                       <svg

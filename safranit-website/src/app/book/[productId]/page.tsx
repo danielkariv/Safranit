@@ -18,10 +18,16 @@ export default async function BookPage({ params }: { params:  Promise<{ productI
         </MainDrawer>
       );
     }
-
+    
     // If book data is found, return the page content
     return (
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense
+        fallback={
+          <MainDrawer>
+            <span className="loading loading-dots loading-lg"></span>
+          </MainDrawer>
+        }
+      >
         <MainDrawer>
           <div className="hero bg-base-200 min-h-screen">
             <div
