@@ -72,7 +72,7 @@ export default async function BookPage({ params }: { params:  Promise<{ productI
                   </div>
 
                   <div className="mt-4 flex justify-center gap-2 flex-wrap">
-                    {bookData.badges.map((tag, index) => (
+                    {bookData.badges.map((tag : string, index : number) => (
                       <span
                         key={index}
                         className={`badge badge-secondary badge-md truncate min-w-max`}
