@@ -1,4 +1,5 @@
-"use server";
+'use server'
+// TODO: this is being loaded in client side! (data.ts exposed to client, because of usage in client side code.. see /latest page.ts)
 import { sql } from '@vercel/postgres';
 /*
 Note about "sql<>`select * from books where id=${id}`" and similar commands, it is safe from SQL injection, because it makes it a query + parameters.
@@ -68,7 +69,7 @@ export async function fetchBookData(id: string) {
     }
 }
 
-export async function fetchLastestBookData() {
+export async function fetchlatestBookData() {
     try{
         const data = await sql<DB_books>`SELECT * FROM books
                                     ORDER BY last_updated DESC
@@ -86,15 +87,15 @@ export async function fetchLastestBookData() {
         };
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to fetch lastest book data.');
+        throw new Error('Failed to fetch latest book data.');
       }
   }
 
-  export async function fetchLastestBooks(page : number, count : number = 10) {
+  export async function fetchlatestBooks(page : number, count : number = 10) {
     try{
         const data = await sql<DB_books>`SELECT * FROM books
                                     ORDER BY last_updated DESC
-                                    LIMIT ${count} OFFSET ${page-1};`;
+                                    LIMIT ${count} OFFSET ${(page-1) * count};`;
         const books: { href: string; imageSrc: string; title: string; writer: string; des: string; badges: string[]; storelinks:Record<string, string> }[] = []
         // convert rows into formated books array.
         data.rows.forEach((row) => {
@@ -109,12 +110,16 @@ export async function fetchLastestBookData() {
                 storelinks : row.storelinks
             });
         });
-        return books;
+        const metadata = await sql<DB_books>`SELECT count(*) as amount FROM books`;
+        const amount = metadata.rows[0].amount;
+        const pages = Math.ceil(amount/count);
+        return {books ,pages};
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error(`Failed to fetch lastest books, page:${page} count:${count}.`);
+        throw new Error(`Failed to fetch latest books, page:${page} count:${count}.`);
       }
   }
+
   export async function insertBook(book : {
     imageSrc: string,
     title: string,

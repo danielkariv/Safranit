@@ -2,10 +2,10 @@ import Link from 'next/link'
 import MainDrawer from '../components/MainDrawer';
 import BookPreviewCard from '../components/BookPreviewCard';
 import BookPreviewHero from '../components/BookPreviewHero';
-import {fetchLastestBookData, fetchLastestBooks} from '../libs/data';
+import {fetchlatestBookData, fetchlatestBooks} from '../libs/data';
 export default async function Home() {
-  const hero_book = await fetchLastestBookData();
-  const lastest_books = await fetchLastestBooks(1,5);
+  const hero_book = await fetchlatestBookData();
+  const {books, pages} = await fetchlatestBooks(1,5);
   return (
     <div>
       <MainDrawer>
@@ -24,8 +24,8 @@ export default async function Home() {
               <div className="divider" />
               <div className="max-w-screen-xl w-full mx-auto">
                 <div className="flex w-full flex-row items-center justify-between p-2">
-                  <h2 className="font-bold text-xl p-2">Lastest Books:</h2>
-                  <Link href="/lastest" className="btn btn-ghost btn-md">
+                  <h2 className="font-bold text-xl p-2">latest Books:</h2>
+                  <Link href="/latest" className="btn btn-ghost btn-md">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="24"
@@ -43,7 +43,7 @@ export default async function Home() {
                 </div>
 
                 <div className="card p-0 ml-6 mr-6 grid min-h-20 place-items-center">
-                  {lastest_books.map((book, index) => (
+                  {books.map((book, index) => (
                     <BookPreviewCard
                       key={index} // Use a unique key (preferably an ID, but index will work for now)
                       href={book.href} // Assuming each book has a unique 'id' field
