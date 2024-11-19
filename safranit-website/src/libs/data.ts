@@ -110,7 +110,7 @@ export async function fetchlatestBookData() {
                 storelinks : row.storelinks
             });
         });
-        const metadata = await sql<DB_books>`SELECT count(*) as amount FROM books`;
+        const metadata = await sql<{amount : number}>`SELECT count(*) as amount FROM books`;
         const amount = metadata.rows[0].amount;
         const pages = Math.ceil(amount/count);
         return {books ,pages};

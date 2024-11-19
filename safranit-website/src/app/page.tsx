@@ -1,14 +1,12 @@
 import Link from 'next/link'
-import MainDrawer from '../components/MainDrawer';
 import BookPreviewCard from '../components/BookPreviewCard';
 import BookPreviewHero from '../components/BookPreviewHero';
 import {fetchlatestBookData, fetchlatestBooks} from '../libs/data';
 export default async function Home() {
   const hero_book = await fetchlatestBookData();
-  const {books, pages} = await fetchlatestBooks(1,5);
+  const {books} = await fetchlatestBooks(1,5);
   return (
     <div>
-      <MainDrawer>
         <div className="flex flex-grow p-0">
           <div className="w-full content-start flex flex-wrap justify-center gap-6">
             <div className="flex w-full flex-col">
@@ -24,7 +22,7 @@ export default async function Home() {
               <div className="divider" />
               <div className="max-w-screen-xl w-full mx-auto">
                 <div className="flex w-full flex-row items-center justify-between p-2">
-                  <h2 className="font-bold text-xl p-2">latest Books:</h2>
+                  <h2 className="font-bold text-xl p-2">Latest Books:</h2>
                   <Link href="/latest" className="btn btn-ghost btn-md">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -58,7 +56,6 @@ export default async function Home() {
             </div>
           </div>
         </div>
-      </MainDrawer>
     </div>
   );
 }

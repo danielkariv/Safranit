@@ -1,6 +1,5 @@
 import { fetchBookData } from "@/libs/data";
 import { Suspense } from "react";
-import MainDrawer from "@/components/MainDrawer";
 import Description from "@/components/Description";
 import Image from "next/image";
 // This page component is async since we're fetching data from a server
@@ -13,9 +12,7 @@ export default async function BookPage({ params }: { params:  Promise<{ productI
     // If no book data is found, return an error message
     if (!bookData) {
       return (
-        <MainDrawer>
           <div>Error: Cant find book data!</div>
-        </MainDrawer>
       );
     }
     
@@ -23,12 +20,9 @@ export default async function BookPage({ params }: { params:  Promise<{ productI
     return (
       <Suspense
         fallback={
-          <MainDrawer>
             <span className="loading loading-dots loading-lg"></span>
-          </MainDrawer>
         }
       >
-        <MainDrawer>
           <div className="hero bg-base-200 min-h-screen">
             <div
               className="w-full h-full"
@@ -109,17 +103,13 @@ export default async function BookPage({ params }: { params:  Promise<{ productI
               </div>
             </div>
           </div>
-        </MainDrawer>
       </Suspense>
     );
   } catch {
     // Catch any errors during the async fetch and render an error message
     return (
-      <MainDrawer>
         <div>Error: Unable to fetch book data!
         </div>
-        
-      </MainDrawer>
     );
   }
 }

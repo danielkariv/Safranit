@@ -1,9 +1,7 @@
 import BookPreviewCard from "@/components/BookPreviewCard";
-import MainDrawer from "@/components/MainDrawer";
 
 export default function Home() {
     return (
-      <MainDrawer>
         <div className="max-w-screen-lg w-full mx-auto flex flex-col items-center">
           <div className="flex w-full items-start justify-start p-2">
             <h2 className="font-bold text-xl p-2">Your Wishlist:</h2>
@@ -33,6 +31,5 @@ export default function Home() {
             />
           </div>
         </div>
-      </MainDrawer>
     );
 }

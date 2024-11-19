@@ -1,9 +1,7 @@
 import BookPreviewCard from "@/components/BookPreviewCard";
-import MainDrawer from "@/components/MainDrawer";
 
 export default function Home() {
     return (
-      <MainDrawer>
         <div className="max-w-screen-lg w-full mx-auto flex flex-col items-center">
           <div className="flex w-full items-center justify-center p-2">
             <label className="input input-bordered flex items-center gap-2 max-w-screen-md w-full">
@@ -47,6 +45,5 @@ export default function Home() {
             />
           </div>
         </div>
-      </MainDrawer>
     );
 }
