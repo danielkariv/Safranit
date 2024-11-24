@@ -66,7 +66,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ p
       );
     }
   
-    if (currentPage < pages) {
+    if (currentPage < pages - 2) {
       pagination.push(
         <a key="next" href={`/latest?page=${currentPage + 1}`} className="join-item btn">
           &gt;
@@ -74,7 +74,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ p
       );
     }
   
-    if (currentPage < pages - 2) {
+    if (currentPage < pages) {
       pagination.push(
         <a key="last" href={`/latest?page=${pages}`} className="join-item btn">
           {pages}

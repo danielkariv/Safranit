@@ -144,3 +144,52 @@ export async function fetchlatestBookData() {
         throw new Error('Failed to insert new book data.');
       }
   }
+
+  export async function fetchSearchBooks(query: string, page: number, count: number = 10) {
+    try {
+      // Fetch books with pagination and search query
+      const data = await sql<DB_books>`
+        SELECT * FROM books
+        WHERE title ILIKE ${'%' + query + '%'} OR writer ILIKE ${'%' + query + '%'}
+        ORDER BY last_updated DESC
+        LIMIT ${count} OFFSET ${(page - 1) * count};
+      `;
+  
+      const books: {
+        href: string;
+        imageSrc: string;
+        title: string;
+        writer: string;
+        des: string;
+        badges: string[];
+        storelinks: Record<string, string>;
+      }[] = [];
+  
+      // Convert rows into formatted books array
+      data.rows.forEach((row) => {
+        books.push({
+          href: `/book/${row.id}/`,
+          imageSrc: row.image,
+          title: row.title,
+          writer: row.writer,
+          des: row.description,
+          badges: row.tags,
+          storelinks: row.storelinks,
+        });
+      });
+  
+      // Fetch total count of matching books
+      const metadata = await sql<{ amount: number }>`
+        SELECT count(*) as amount FROM books 
+        WHERE title ILIKE ${'%' + query + '%'} OR writer ILIKE ${'%' + query + '%'}
+      `;
+      const amount = metadata.rows[0].amount;
+      const pages = Math.ceil(amount / count);
+  
+      return { books, pages };
+    } catch (error) {
+      console.error("Database Error:", error);
+      throw new Error(`Failed to fetch books with query: "${query}", page: ${page}, count: ${count}.`);
+    }
+  }
+  
