@@ -35,11 +35,11 @@ export default function MainDrawer({
     };
 
     return (
-        <div className="drawer lg:drawer-open">
+      <div className="drawer lg:drawer-open">
         <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content flex flex-col">
           {/* Page content here */}
-          <Navbar/>
+          <Navbar />
           {children}
         </div>
         <div className="drawer-side">
@@ -53,7 +53,9 @@ export default function MainDrawer({
               {/* Sidebar content here */}
               <li>
                 <div className="p-4 flex justify-between items-center">
-                <Link href="/" className="text-xl">Safranit</Link>
+                  <Link href="/" className="text-xl">
+                    Safranit
+                  </Link>
                   <div className="join gap-3">
                     <label className="swap swap-rotate">
                       {/* this hidden checkbox controls the state */}
@@ -109,7 +111,7 @@ export default function MainDrawer({
               <li>
                 <ul className="p-2">
                   <li>
-                    <Link href="/" className="flex items-center text-lg mb-2" >
+                    <Link href="/" className="flex items-center text-lg mb-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -128,7 +130,10 @@ export default function MainDrawer({
                     </Link>
                   </li>
                   <li>
-                    <Link href="/wishlist" className="flex items-center text-lg mb-2">
+                    <Link
+                      href="/wishlist"
+                      className="flex items-center text-lg mb-2"
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -146,7 +151,10 @@ export default function MainDrawer({
                     </Link>
                   </li>
                   <li>
-                    <Link href="/search" className="flex items-center text-lg mb-2">
+                    <Link
+                      href="/search"
+                      className="flex items-center text-lg mb-2"
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -165,7 +173,10 @@ export default function MainDrawer({
                     </Link>
                   </li>
                   <li>
-                    <Link href="/profile/books"className="flex items-center text-lg mb-2">
+                    <Link
+                      href="/profile/books"
+                      className="flex items-center text-lg mb-2"
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -184,11 +195,36 @@ export default function MainDrawer({
                       </svg>
                       My Books
                     </Link>
+                    <Link
+                      href="/login"
+                      className="flex items-center text-lg mb-2"
+                    >
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          fill="none"
+                          d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0a8.949 8.949 0 0 0 4.951-1.488A3.987 3.987 0 0 0 13 16h-2a3.987 3.987 0 0 0-3.951 3.512A8.948 8.948 0 0 0 12 21Zm3-11a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                        />
+                      </svg>
+                      Login
+                    </Link>
                   </li>
                 </ul>
               </li>
             </ul>
-            <Footer/>
+            <Footer />
           </div>
         </div>
       </div>
