@@ -1,6 +1,7 @@
 'use server'
 // TODO: this is being loaded in client side! (data.ts exposed to client, because of usage in client side code.. see /latest page.ts)
 import { sql } from '@vercel/postgres';
+import bcrypt from 'bcrypt';
 /*
 Note about "sql<>`select * from books where id=${id}`" and similar commands, it is safe from SQL injection, because it makes it a query + parameters.
 See: https://neon.tech/blog/sql-template-tags
@@ -193,3 +194,72 @@ export async function fetchlatestBookData() {
     }
   }
   
+ 
+export async function insertUser(user: { name: string, email: string, password: string }) {
+    try {
+        const { name, email, password } = user;
+
+        // Hash the password before inserting (assuming bcrypt is being used)
+        // You should hash the password before passing it to the query
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const result = await sql`
+                            INSERT INTO users (username, email, password_hash, role, created_at, last_updated)
+                            VALUES (${name}, ${email}, ${hashedPassword}, 'user', NOW(), NOW())
+                            ON CONFLICT (email) 
+                            DO NOTHING;
+                        `;
+
+        if (result.rowCount === 0) {
+            throw new Error(`Email already exists: ${email}`);
+        }
+
+    } catch (error: unknown) {
+        // Handle specific error
+        if (error instanceof Error && error.message.includes("Email already exists")) {
+            throw new Error('Email already exists. Please choose a different email.');
+        }
+        console.error('Database Error:', error);
+        // Handle other errors
+        throw new Error('Failed to insert new user.');
+    }
+}
+ 
+export async function authUser(user: { email: string, password: string }) {
+    try {
+        const { email, password } = user;
+
+        // Fetch the user by email
+        const result = await sql`
+            SELECT email, password_hash 
+            FROM users 
+            WHERE email = ${email}
+        `;
+
+        // Check if the user exists
+        if (result.rowCount === 0) {
+            throw new Error('Invalid email or password.');
+        }
+
+        const dbUser = result.rows[0];
+
+        // Compare the provided password with the hashed password stored in the database
+        const isPasswordValid = await bcrypt.compare(password, dbUser.password_hash);
+
+        if (!isPasswordValid) {
+            throw new Error('Invalid email or password.');
+        }
+
+        // If the email and password match, return true (successful login)
+        return true;
+
+    } catch (error: unknown) {
+        // Handle specific error
+        if (error instanceof Error && error.message.includes("Invalid email or password")) {
+            throw new Error('Invalid email or password.');
+        }
+        console.error('Database Error:', error);
+        // Handle other errors
+        throw new Error('Failed to authenticate user.');
+    }
+}

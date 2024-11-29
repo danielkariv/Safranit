@@ -35,7 +35,7 @@ export default function Signup() {
 
         try {
             
-            const response = await fetch("/signup", {
+            const response = await fetch("/api/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
@@ -43,7 +43,8 @@ export default function Signup() {
             const result = await response;
             
             if (!response.ok) {
-                throw new Error(result.statusText || "Something went wrong.");
+                const res_json = await result.json();
+                throw new Error(res_json.error || "Something went wrong.");
             }
 
             setSuccess("Signup successful! Redirecting to login page..");
@@ -52,7 +53,7 @@ export default function Signup() {
             // Redirect user after successful login
             setTimeout(() => {
                 window.location.href = "/login"; // Adjust based on your app's structure
-            }, 2000);
+            }, 3000);
         } catch (err: unknown) {
             if (err instanceof Error) {
                 setError(err.message);

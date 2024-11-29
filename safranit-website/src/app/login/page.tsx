@@ -37,7 +37,7 @@ export default function Login() {
 
         try {
             // Send login data to the server
-            const response = await fetch("/login", {
+            const response = await fetch("/api/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
@@ -46,7 +46,8 @@ export default function Login() {
             const result = await response;
 
             if (!response.ok) {
-                throw new Error(result.statusText || "Failed to log in.");
+                const res_json = await result.json();
+                throw new Error(res_json.error || "Failed to log in.");
             }
 
             setSuccess("Login successful! Redirecting to homepage...");
@@ -55,7 +56,7 @@ export default function Login() {
             // Redirect user after successful login
             setTimeout(() => {
                 window.location.href = "/"; // Adjust based on your app's structure
-            }, 2000);
+            }, 3000);
         } catch (err: unknown) {
             if (err instanceof Error) {
                 setError(err.message);
