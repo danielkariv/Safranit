@@ -46,7 +46,7 @@ export default function MainDrawer({
 
     // Call the API route to check login status
     const logout = async () => {
-      const response = await fetch("/api/logout");
+      await fetch("/api/logout");
       setIsLoggedIn(false);
     };
     logout();

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest) {
+export async function GET(_: NextRequest) {
   // Clear the session cookie by setting it with an expired date
   const response = NextResponse.json({ message: 'Logged out' });
     // Cookie options
