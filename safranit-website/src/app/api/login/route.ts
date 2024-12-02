@@ -1,5 +1,7 @@
-import { authUser } from '@/libs/data'
+import { authUser, generateJWT, getCookieOptions } from '@/libs/data'
+import { JWTPayload } from 'jose'
 import { NextResponse } from 'next/server'
+
 
 type ResponseData = {
   message?: string
@@ -27,8 +29,17 @@ export async function POST(req: Request): Promise<NextResponse<ResponseData>> {
     const isAuthenticated = await authUser({ email, password })
 
     if (isAuthenticated) {
-      // Send success response if authentication is successful
-      return NextResponse.json({ message: 'Login successful!' })
+      // Generate a session token
+      const payload: JWTPayload = {
+        email: email
+      };
+      const token = await generateJWT(payload, '1d');
+
+      // Create response with cookie
+      const response = NextResponse.json({ message: 'Login successful!' });
+      response.cookies.set('session', token, await getCookieOptions());
+
+      return response;
     } else {
       // Return error if authentication fails (though `authUser` should throw an error if this occurs)
       return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 })

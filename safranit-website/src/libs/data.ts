@@ -1,7 +1,9 @@
-'use server'
+'use server';
 // TODO: this is being loaded in client side! (data.ts exposed to client, because of usage in client side code.. see /latest page.ts)
 import { sql } from '@vercel/postgres';
 import bcrypt from 'bcrypt';
+import { JWTPayload, SignJWT, jwtVerify } from 'jose';
+import { NextRequest } from 'next/server';
 /*
 Note about "sql<>`select * from books where id=${id}`" and similar commands, it is safe from SQL injection, because it makes it a query + parameters.
 See: https://neon.tech/blog/sql-template-tags
@@ -245,7 +247,7 @@ export async function authUser(user: { email: string, password: string }) {
 
         // Compare the provided password with the hashed password stored in the database
         const isPasswordValid = await bcrypt.compare(password, dbUser.password_hash);
-
+        
         if (!isPasswordValid) {
             throw new Error('Invalid email or password.');
         }
@@ -262,4 +264,59 @@ export async function authUser(user: { email: string, password: string }) {
         // Handle other errors
         throw new Error('Failed to authenticate user.');
     }
+}
+
+
+// Secret key for signing JWT (store securely in environment variables)
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'your-secret-key')
+
+// Cookie options
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict' as const, 
+  path: '/',
+  maxAge: 60 * 60 * 24 // 1 day in seconds
+}
+export async function getCookieOptions(){
+    return COOKIE_OPTIONS;
+}
+
+// Function to generate a JWT
+export async function generateJWT(payload: JWTPayload, expiresIn: string): Promise<string> {
+  return new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' }) // Set the algorithm
+    .setExpirationTime(expiresIn) // Set expiration time
+    .setIssuedAt() // Add "iat" (issued at) claim
+    .sign(JWT_SECRET) // Sign the JWT with the secret key
+}
+
+// Function to verify a JWT
+export async function verifyJWT(token: string, secret: Uint8Array) {
+  const { payload } = await jwtVerify(token, secret)
+  return payload
+}
+
+export async function verifySession(req: NextRequest): Promise<{ email: string } | null> {
+  const session = req.cookies.get('session')?.value
+
+  if (!session) {
+    return null
+  }
+
+  try {
+    // Verify the JWT and extract the payload
+    const { payload } = await jwtVerify(session, JWT_SECRET);
+
+    // Validate that payload contains the expected email property
+    if (typeof payload.email === 'string') {
+      return { email: payload.email };
+    } else {
+      console.log('Payload is missing the email property or it is invalid.');
+      return null;
+    }
+  } catch (err) {
+    console.log('Invalid session token:', err);
+    return null;
+  }
 }
