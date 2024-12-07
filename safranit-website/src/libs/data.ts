@@ -1,5 +1,5 @@
 'use server';
-// TODO: this is being loaded in client side! (data.ts exposed to client, because of usage in client side code.. see /latest page.ts)
+// TODO: verify that no page is reading this client side (was a bug previously)
 import { sql } from '@vercel/postgres';
 import bcrypt from 'bcrypt';
 import { JWTPayload, SignJWT, jwtVerify } from 'jose';
@@ -28,6 +28,13 @@ export interface BookProps {
     des: string;
     storelinks: Record<string, string> | null;
   }
+export type DB_USER_BOOKS = {
+    user_id : string;
+    book_id : string;
+    status : string;
+    created_at: Date;
+    updated_at: Date;
+}
 export async function fetchBookData(id: string) {
     try {
         
@@ -297,8 +304,8 @@ export async function verifyJWT(token: string, secret: Uint8Array) {
   return payload
 }
 
-export async function verifySession(req: NextRequest): Promise<{ email: string } | null> {
-  const session = req.cookies.get('session')?.value
+export async function verifySession(sessionCookie : string): Promise<{ email: string } | null> {
+  const session = sessionCookie;
 
   if (!session) {
     return null
@@ -320,3 +327,51 @@ export async function verifySession(req: NextRequest): Promise<{ email: string }
     return null;
   }
 }
+
+export async function fetchBookUserStatus(story_id: string, userData : { email: string; }) {
+    try {
+        const user = await sql<DB_books>`SELECT * FROM users WHERE email=${userData.email}`;
+         
+        if (user.rowCount === 0) {
+            console.log(`No user found for email: ${userData.email}`);
+            return null;
+        }
+        const userRow = user.rows[0];
+        const data = await sql<DB_USER_BOOKS>`SELECT * FROM user_books WHERE user_id=${userRow.id} AND book_id=${story_id}`;
+        
+        if (data.rowCount === 0) {
+            // console.log(`No book found for id: ${story_id} with user id: ${userRow.id}`);
+            return null;
+        }
+
+        const row = data.rows[0];
+        return row.status;
+    } catch (error) {
+        console.error('Database Error:', error);
+        throw new Error(`Failed to fetch book data, id:${story_id}, userData:${userData}.`);
+    }
+}
+
+
+export async function updateUserBooksStatus(userData : {email:string}, productId : string, status : string){
+    try{
+        const user = await sql<DB_books>`SELECT * FROM users WHERE email=${userData.email}`;
+         
+        if (user.rowCount === 0) {
+            console.log(`No user found for email: ${userData.email}`);
+            return null;
+        }
+        const userRow = user.rows[0];
+        // We convert array and JSON to string. 
+        await sql`
+            INSERT INTO user_books (user_id, book_id, status)
+            VALUES (${userRow.id}, ${productId}, ${status})
+            ON CONFLICT (user_id, book_id)  -- Conflict check on title and writer
+            DO UPDATE SET
+                status = EXCLUDED.status  -- Update status if conflict occurs
+        `;
+    } catch (error) {
+        console.error('Database Error:', error);
+        throw new Error('Failed to insert new user_books status.');
+      }
+  }

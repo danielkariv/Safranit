@@ -1,11 +1,20 @@
-import { fetchBookData } from "@/libs/data";
+import { fetchBookData, fetchBookUserStatus, verifySession } from "@/libs/data";
 import { Suspense } from "react";
 import Description from "@/components/Description";
 import Image from "next/image";
+import { cookies } from 'next/headers';
+import InteractiveButtons from "@/components/BookUserButtons";
+
 // This page component is async since we're fetching data from a server
 export default async function BookPage({ params }: { params:  Promise<{ productId: string }> }) {
   try {
     const final_params = await params;
+
+    // Access cookies
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('session')?.value;
+    // sessionCookie either null or has account email. We use that for adding button when user is logged in.
+
     // Fetch the book data based on the dynamic productId from the params
     const bookData = await fetchBookData(final_params.productId);
     
@@ -16,6 +25,9 @@ export default async function BookPage({ params }: { params:  Promise<{ productI
       );
     }
     
+    const sessionData = (sessionCookie)? await verifySession(sessionCookie) : null;
+    const userStatus = (sessionData)? await fetchBookUserStatus(final_params.productId, sessionData) : null;
+
     // If book data is found, return the page content
     return (
       <Suspense
@@ -95,10 +107,10 @@ export default async function BookPage({ params }: { params:  Promise<{ productI
                     </a>
                   </div>
 
-                  <div className="mt-6 flex justify-center gap-4">
-                    <button className="btn btn-primary">Add to Wishlist</button>
-                    <button className="btn btn-secondary">Mark as Read</button>
-                  </div>
+                  {!sessionCookie ? null : <InteractiveButtons 
+                                            productId={final_params.productId}
+                                            inWishlist={(userStatus === "wishlist")}
+                                            isOwned={(userStatus === "owned")}/>}
                 </div>
               </div>
             </div>
