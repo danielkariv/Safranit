@@ -3,7 +3,6 @@
 import { sql } from '@vercel/postgres';
 import bcrypt from 'bcrypt';
 import { JWTPayload, SignJWT, jwtVerify } from 'jose';
-import { NextRequest } from 'next/server';
 /*
 Note about "sql<>`select * from books where id=${id}`" and similar commands, it is safe from SQL injection, because it makes it a query + parameters.
 See: https://neon.tech/blog/sql-template-tags
