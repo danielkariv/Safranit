@@ -95,10 +95,13 @@ export default async function BookPage({ params }: { params:  Promise<{ productI
                       >
                         Steimatzky
                  </a>
+                 {/* 
                  <a  href={bookData.storelinks.booknet}
                       className="btn btn-outline btn-secondary">
                         Booknet
                  </a>
+                 */}
+                 
                 </div>
 
                 {!sessionCookie ? null : (
