@@ -1,5 +1,5 @@
 import BookPreviewCard from "@/components/BookPreviewCard";
-import { fetchSearchBooks, fetchWishlistBooks, verifySession } from "@/libs/data";
+import { fetchWishlistBooks, verifySession } from "@/libs/data";
 import { cookies } from "next/headers";
 import Link from "next/link";
 
@@ -39,6 +39,8 @@ export default async function Home({
 
   // Render pagination buttons
   const renderPagination = () => {
+    if (pages === undefined)
+      return [];
     const pagination = [];
 
     if (currentPage > 3) {

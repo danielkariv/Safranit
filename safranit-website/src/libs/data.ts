@@ -441,3 +441,70 @@ export async function fetchWishlistBooks(query: string, page: number, count: num
     throw new Error(`Failed to fetch books with query: "${query}", page: ${page}, count: ${count}.`);
   }
 }
+
+
+export async function fetchOwnedBooks(query: string, page: number, count: number = 10, userData: { email: string }) {
+  try {
+    const books: {
+      href: string;
+      imageSrc: string;
+      title: string;
+      writer: string;
+      des: string;
+      badges: string[];
+      storelinks: Record<string, string>;
+    }[] = [];
+    const user = await sql<DB_books>`SELECT * FROM users WHERE email=${userData.email}`;
+    
+    if (user.rowCount === 0) {
+      console.log(`No user found for email: ${userData.email}`);
+      return { books, 0 : Number };
+    }
+    const userRow = user.rows[0];
+    const userId = userRow.id;
+    // Fetch books with pagination and search query
+    // Fetch books matching the search query and wishlist status for the user
+    const data = await sql<DB_books>`
+        SELECT books.*
+        FROM books
+        JOIN user_books ON books.id = user_books.book_id
+        WHERE user_books.user_id = ${userId}
+          AND user_books.status = 'owned'
+          AND (books.title ILIKE ${'%' + query + '%'} OR books.writer ILIKE ${'%' + query + '%'})
+        ORDER BY books.last_updated DESC
+        LIMIT ${count} OFFSET ${(page - 1) * count};
+      `;
+    console.log(data);
+    
+
+    // Convert rows into formatted books array
+    data.rows.forEach((row) => {
+      books.push({
+        href: `/book/${row.id}/`,
+        imageSrc: row.image,
+        title: row.title,
+        writer: row.writer,
+        des: row.description,
+        badges: row.tags,
+        storelinks: row.storelinks,
+      });
+    });
+
+    // Fetch total count of matching books
+    const metadata = await sql<{ amount: number }>`
+        SELECT count(books.*)
+        FROM books
+        JOIN user_books ON books.id = user_books.book_id
+        WHERE user_books.user_id = ${userId}
+          AND user_books.status = 'owned'
+          AND (books.title ILIKE ${'%' + query + '%'} OR books.writer ILIKE ${'%' + query + '%'})
+      `;
+    const amount = metadata.rows[0].amount;
+    const pages = Math.ceil(amount / count);
+
+    return { books, pages };
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error(`Failed to fetch books with query: "${query}", page: ${page}, count: ${count}.`);
+  }
+}
